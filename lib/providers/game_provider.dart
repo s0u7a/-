@@ -11,6 +11,7 @@ class GameProvider extends ChangeNotifier {
   int _timeLimitSec = 60;
   int _problemLimit = 100;
   int _profileId = 1;
+  DifficultySettings _difficulty = const DifficultySettings();
 
   GameState _gameState = GameState.idle;
   Problem? _currentProblem;
@@ -63,6 +64,8 @@ class GameProvider extends ChangeNotifier {
   void setTimeLimitSec(int s) { _timeLimitSec = s; notifyListeners(); }
   void setProblemLimit(int n) { _problemLimit = n; notifyListeners(); }
   void setProfileId(int id) { _profileId = id; }
+  void setDifficulty(DifficultySettings d) { _difficulty = d; notifyListeners(); }
+  DifficultySettings get difficulty => _difficulty;
 
   // ─── Game Control ───────────────────────────────────────────────────────
 
@@ -101,7 +104,7 @@ class GameProvider extends ChangeNotifier {
   }
 
   void _nextProblem() {
-    _currentProblem = Problem.generate();
+    _currentProblem = Problem.generate(_difficulty);
     _inputBuffer = '';
     _problemStart = DateTime.now();
   }

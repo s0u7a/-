@@ -70,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
               _ModeSelector(game: game),
               const SizedBox(height: 24),
               _ModeOptions(game: game),
+              const SizedBox(height: 24),
+              _DifficultySection(game: game),
               const Spacer(),
               _StartButton(game: game, profileId: profileProv.activeProfileId),
             ],
@@ -331,6 +333,139 @@ class _StartButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         child: const Text('スタート', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+      ),
+    );
+  }
+}
+
+// ─── Difficulty Section ───────────────────────────────────────────────────────
+
+class _DifficultySection extends StatelessWidget {
+  final GameProvider game;
+  const _DifficultySection({required this.game});
+
+  @override
+  Widget build(BuildContext context) {
+    final d = game.difficulty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('難易度', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, letterSpacing: 1)),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: AppTheme.card, borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            children: [
+              // 桁数
+              _DiffRow(
+                label: '桁数',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [1, 2].map((n) {
+                    final sel = d.digits == n;
+                    return Padding(
+                      padding: EdgeInsets.only(left: n == 2 ? 8 : 0),
+                      child: GestureDetector(
+                        onTap: () => game.setDifficulty(d.copyWith(digits: n)),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 120),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: sel ? AppTheme.primary : AppTheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text('$n桁',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: sel ? Colors.black : AppTheme.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const Divider(color: AppTheme.divider, height: 20),
+              // 繰り上がり（加算）
+              _DiffRow(
+                label: '繰り上がり（加算）',
+                child: _Toggle(
+                  value: d.allowCarry,
+                  onChanged: (v) => game.setDifficulty(d.copyWith(allowCarry: v)),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // 繰り下がり（減算）
+              _DiffRow(
+                label: '繰り下がり（減算）',
+                child: _Toggle(
+                  value: d.allowBorrow,
+                  onChanged: (v) => game.setDifficulty(d.copyWith(allowBorrow: v)),
+                ),
+              ),
+              const SizedBox(height: 10),
+              // 余り（除算）
+              _DiffRow(
+                label: '余りあり（除算）',
+                child: _Toggle(
+                  value: d.allowRemainder,
+                  onChanged: (v) => game.setDifficulty(d.copyWith(allowRemainder: v)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DiffRow extends StatelessWidget {
+  final String label;
+  final Widget child;
+  const _DiffRow({required this.label, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary))),
+        child,
+      ],
+    );
+  }
+}
+
+class _Toggle extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  const _Toggle({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 48,
+        height: 26,
+        decoration: BoxDecoration(
+          color: value ? AppTheme.primary : AppTheme.surface,
+          borderRadius: BorderRadius.circular(13),
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 150),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            margin: const EdgeInsets.all(3),
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+          ),
+        ),
       ),
     );
   }
