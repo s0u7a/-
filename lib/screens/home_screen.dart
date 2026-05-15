@@ -353,67 +353,60 @@ class _DifficultySection extends StatelessWidget {
         const Text('難易度', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, letterSpacing: 1)),
         const SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
           decoration: BoxDecoration(color: AppTheme.card, borderRadius: BorderRadius.circular(12)),
           child: Column(
             children: [
-              // 桁数
-              _DiffRow(
-                label: '桁数',
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [1, 2].map((n) {
-                    final sel = d.digits == n;
-                    return Padding(
-                      padding: EdgeInsets.only(left: n == 2 ? 8 : 0),
-                      child: GestureDetector(
-                        onTap: () => game.setDifficulty(d.copyWith(digits: n)),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 120),
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: sel ? AppTheme.primary : AppTheme.surface,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text('$n桁',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: sel ? Colors.black : AppTheme.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+              // 加算
+              _OpRangeRow(
+                symbol: '+',
+                leftLabel: '左',
+                rightLabel: '右',
+                leftVal: d.addLeftMax,
+                rightVal: d.addRightMax,
+                leftMin: 1, leftMax: 99,
+                rightMin: 1, rightMax: 99,
+                onLeftChanged: (v) => game.setDifficulty(d.copyWith(addLeftMax: v)),
+                onRightChanged: (v) => game.setDifficulty(d.copyWith(addRightMax: v)),
+                hint: '答え最大 ${d.addLeftMax + d.addRightMax}',
               ),
               const Divider(color: AppTheme.divider, height: 20),
-              // 繰り上がり（加算）
-              _DiffRow(
-                label: '繰り上がり（加算）',
-                child: _Toggle(
-                  value: d.allowCarry,
-                  onChanged: (v) => game.setDifficulty(d.copyWith(allowCarry: v)),
-                ),
+              // 減算
+              _OpRangeRow(
+                symbol: '−',
+                leftLabel: '左',
+                rightLabel: '右',
+                leftVal: d.subLeftMax,
+                rightVal: d.subRightMax,
+                leftMin: 2, leftMax: 99,
+                rightMin: 1, rightMax: 99,
+                onLeftChanged: (v) => game.setDifficulty(d.copyWith(subLeftMax: v)),
+                onRightChanged: (v) => game.setDifficulty(d.copyWith(subRightMax: v)),
+                hint: '左 > 右 を保証',
               ),
-              const SizedBox(height: 10),
-              // 繰り下がり（減算）
-              _DiffRow(
-                label: '繰り下がり（減算）',
-                child: _Toggle(
-                  value: d.allowBorrow,
-                  onChanged: (v) => game.setDifficulty(d.copyWith(allowBorrow: v)),
-                ),
+              const Divider(color: AppTheme.divider, height: 20),
+              // 乗算ラベル
+              Row(
+                children: [
+                  _SymLabel('×'),
+                  const SizedBox(width: 10),
+                  const Text('1〜9 × 1〜9（固定）', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                ],
               ),
-              const SizedBox(height: 10),
-              // 余り（除算）
-              _DiffRow(
-                label: '余りあり（除算）',
-                child: _Toggle(
-                  value: d.allowRemainder,
-                  onChanged: (v) => game.setDifficulty(d.copyWith(allowRemainder: v)),
-                ),
+              const Divider(color: AppTheme.divider, height: 20),
+              // 除算
+              Row(
+                children: [
+                  _SymLabel('÷'),
+                  const SizedBox(width: 10),
+                  const Expanded(child: Text('1〜81 ÷ 1〜9（固定）', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary))),
+                  const Text('余りあり', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                  const SizedBox(width: 8),
+                  _Toggle(
+                    value: d.allowRemainder,
+                    onChanged: (v) => game.setDifficulty(d.copyWith(allowRemainder: v)),
+                  ),
+                ],
               ),
             ],
           ),
@@ -423,18 +416,162 @@ class _DifficultySection extends StatelessWidget {
   }
 }
 
-class _DiffRow extends StatelessWidget {
+class _OpRangeRow extends StatelessWidget {
+  final String symbol;
+  final String leftLabel;
+  final String rightLabel;
+  final int leftVal;
+  final int rightVal;
+  final int leftMin;
+  final int leftMax;
+  final int rightMin;
+  final int rightMax;
+  final ValueChanged<int> onLeftChanged;
+  final ValueChanged<int> onRightChanged;
+  final String hint;
+
+  const _OpRangeRow({
+    required this.symbol,
+    required this.leftLabel,
+    required this.rightLabel,
+    required this.leftVal,
+    required this.rightVal,
+    required this.leftMin,
+    required this.leftMax,
+    required this.rightMin,
+    required this.rightMax,
+    required this.onLeftChanged,
+    required this.onRightChanged,
+    required this.hint,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _SymLabel(symbol),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Row(
+                children: [
+                  _Stepper(
+                    label: leftLabel,
+                    value: leftVal,
+                    min: leftMin,
+                    max: leftMax,
+                    onChanged: onLeftChanged,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text('max', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                  const SizedBox(width: 10),
+                  _Stepper(
+                    label: rightLabel,
+                    value: rightVal,
+                    min: rightMin,
+                    max: rightMax,
+                    onChanged: onRightChanged,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.only(left: 36),
+          child: Text(hint, style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
+        ),
+      ],
+    );
+  }
+}
+
+class _SymLabel extends StatelessWidget {
+  final String symbol;
+  const _SymLabel(this.symbol);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(6)),
+      alignment: Alignment.center,
+      child: Text(symbol, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+    );
+  }
+}
+
+class _Stepper extends StatelessWidget {
   final String label;
-  final Widget child;
-  const _DiffRow({required this.label, required this.child});
+  final int value;
+  final int min;
+  final int max;
+  final ValueChanged<int> onChanged;
+
+  const _Stepper({
+    required this.label,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: AppTheme.textPrimary))),
-        child,
+        Text('$label:', style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+        const SizedBox(width: 4),
+        _StepBtn(
+          icon: Icons.remove,
+          enabled: value > min,
+          onTap: () => onChanged((value - 1).clamp(min, max)),
+        ),
+        const SizedBox(width: 4),
+        SizedBox(
+          width: 30,
+          child: Text(
+            '$value',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.textPrimary,
+              fontFeatures: [FontFeature.tabularFigures()]),
+          ),
+        ),
+        const SizedBox(width: 4),
+        _StepBtn(
+          icon: Icons.add,
+          enabled: value < max,
+          onTap: () => onChanged((value + 1).clamp(min, max)),
+        ),
       ],
+    );
+  }
+}
+
+class _StepBtn extends StatelessWidget {
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+  const _StepBtn({required this.icon, required this.enabled, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 26,
+        height: 26,
+        decoration: BoxDecoration(
+          color: enabled ? AppTheme.surface : AppTheme.bg,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Icon(icon, size: 14, color: enabled ? AppTheme.textPrimary : AppTheme.divider),
+      ),
     );
   }
 }
@@ -450,7 +587,7 @@ class _Toggle extends StatelessWidget {
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        width: 48,
+        width: 46,
         height: 26,
         decoration: BoxDecoration(
           color: value ? AppTheme.primary : AppTheme.surface,
