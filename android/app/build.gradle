@@ -38,10 +38,9 @@ android {
 
     signingConfigs {
         release {
-            def storeFile = System.getenv('STORE_FILE') ?: 'math_drill.jks'
-            keyAlias     System.getenv('KEY_ALIAS')     ?: 'math_drill'
-            keyPassword  System.getenv('KEY_PASSWORD')  ?: 'mathdrill123'
-            storeFile    file(storeFile)
+            keyAlias      System.getenv('KEY_ALIAS')      ?: 'math_drill'
+            keyPassword   System.getenv('KEY_PASSWORD')   ?: 'mathdrill123'
+            storeFile     file(System.getenv('STORE_FILE') ?: 'math_drill.jks')
             storePassword System.getenv('STORE_PASSWORD') ?: 'mathdrill123'
         }
     }
