@@ -8,18 +8,11 @@ if (localPropertiesFile.exists()) {
 
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+    throw new GradleException("Flutter SDK not found.")
 }
 
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -43,6 +36,16 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    signingConfigs {
+        release {
+            def storeFile = System.getenv('STORE_FILE') ?: 'math_drill.jks'
+            keyAlias     System.getenv('KEY_ALIAS')     ?: 'math_drill'
+            keyPassword  System.getenv('KEY_PASSWORD')  ?: 'mathdrill123'
+            storeFile    file(storeFile)
+            storePassword System.getenv('STORE_PASSWORD') ?: 'mathdrill123'
+        }
+    }
+
     defaultConfig {
         applicationId "com.example.math_drill"
         minSdkVersion 21
@@ -53,7 +56,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
         }
