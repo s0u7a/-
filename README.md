@@ -1,3 +1,11 @@
+# Math Drill
+
+Math drill app for elementary arithmetic — Flutter / Dart. Covers addition, subtraction, multiplication, and division with SQLite persistence, stats, and charts.
+
+> 🇯🇵 日本語のビルド手順は以下を参照
+
+---
+
 # Math Drill - ビルド手順
 
 ## 必要なもの
