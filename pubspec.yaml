@@ -1,5 +1,5 @@
 name: math_drill
-description: PSI Training Math Drill
+description: Math drill app for elementary arithmetic (Flutter)
 version: 1.0.0+1
 
 environment:
