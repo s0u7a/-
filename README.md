@@ -2,7 +2,13 @@
 
 Math drill app for elementary arithmetic — Flutter / Dart. Covers addition, subtraction, multiplication, and division with SQLite persistence, stats, and charts.
 
+App ID: `app.soutalab.mathdrill`.
+
 > 🇯🇵 日本語のビルド手順は以下を参照
+
+## Release signing
+
+Release builds read signing config from env (`KEY_ALIAS`, `KEY_PASSWORD`, `STORE_FILE`, `STORE_PASSWORD`); committed `mathdrill123` values are local-dev fallbacks only. See `.github/workflows/build.yml`.
 
 ---
 

@@ -46,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.math_drill"
+        applicationId "app.soutalab.mathdrill"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
